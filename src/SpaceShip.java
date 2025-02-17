@@ -50,4 +50,11 @@ public class SpaceShip {
         }
 
     }
+    public int fuelDrain(int fuel) {
+        this.fuelLevel -= fuel;
+        if (this.fuelLevel < 0) {
+            return 0;
+        }
+        return 1;
+    }
 }
