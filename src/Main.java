@@ -60,7 +60,7 @@ public class Main {
                             spaceShip.takeDamage(spaceStorm.getDamage());
                             System.out.println(spaceShip.getSpaceShipStatus());
                         } catch (CriticalDMGExeption e) {
-                            e.printStackTrace();
+                            System.out.println("WATCH OUT:"+ e.getMessage());
                         }
                         if (spaceShip.getDurability() < 0){
                             running = false;
