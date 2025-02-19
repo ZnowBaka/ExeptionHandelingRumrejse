@@ -1,6 +1,9 @@
+import java.util.Scanner;
+
 public class SpaceStorm {
-    private int min = 0;
-    private int max = 30;
+    private final int min = 0;
+    private final int max = 30;
+
     private int damage;
     private String discription;
     private int fueldepletion;
@@ -15,19 +18,28 @@ public class SpaceStorm {
         return fueldepletion;
     }
 
-    public String getDiscription(){
+    public String getDiscription() {
         discription = "You encountered a space storm ";
         return discription;
     }
 
-    public int getDamage(){
+    public String getChoices() {
+        String choices = """
+                what will you do?
+                Fly through space storm: 1
+                Fly around Storm: 2
+                """;
+        return choices;
+    }
+
+
+    public int getDamage() {
         return damage;
     }
 
-    public int getFueldepletion(){
+    public int getFueldepletion() {
         return fueldepletion;
     }
-
 
 
 }

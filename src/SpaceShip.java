@@ -33,10 +33,12 @@ public class SpaceShip {
         this.fuelLevel = fuelLevel;
         this.durability = durability;
     }
+
     public String getSpaceShipStatus() {
         String message = this.shipName + " has fuel level " + this.fuelLevel + " and durability " + this.durability;
         return message;
     }
+
     public int takeDamage(int damage) throws CriticalDMGExeption {
 
         this.durability -= damage;
@@ -50,11 +52,16 @@ public class SpaceShip {
         }
 
     }
-    public int fuelDrain(int fuel) {
+
+    public int fuelDrain(int fuel) throws CriticalDMGExeption {
         this.fuelLevel -= fuel;
         if (this.fuelLevel < 0) {
             return 0;
+        } else if (this.fuelLevel <= 20) {
+            throw new CriticalDMGExeption("Your fuel is very low u may run out");
+        } else {
+            return 1;
         }
-        return 1;
     }
-}
+}// SpaceShip End
+
