@@ -7,8 +7,9 @@ public class Main {
         Scanner input = new Scanner(System.in);
         int choiceRandomMin = 1;
         int choiceRandomMax = 3;
+        int journeyMaxEncounters = 5;
         boolean waitingForInput = true;
-        boolean running = true;
+        int encounterCounter = 0;
         SpaceShip spaceShip = null;
         Player player = null;
         System.out.println("Welcome to Space Journey" + "\n" + "please enter your name");
@@ -31,9 +32,23 @@ public class Main {
             System.out.println("ship naming fault" + e.getMessage());
         }
         System.out.println(spaceShip.getSpaceShipStatus());
-        while (running) {
-            //int random = (int) (Math.random() * (choiceRandomMax - choiceRandomMin) + choiceRandomMin);
-            int random = 2;
+        while (encounterCounter <= journeyMaxEncounters) {
+            if (spaceShip.getDurability() <= 0 || spaceShip.getFuelLevel() <= 0) {
+                System.out.println("Your ship is beyond critical condition");
+                System.out.println("It is no longer operational, your journey ends here");
+                player.setScore(spaceShip.getDurability() * 3 + spaceShip.getFuelLevel() * 2);
+                System.out.println("Your score is : " + player.getScore());
+                System.exit(0);
+            }
+            if (encounterCounter == journeyMaxEncounters) {
+                System.out.println("Congratulations you have won the space journey!");
+                player.setScore(spaceShip.getDurability() * 3 + spaceShip.getFuelLevel() * 2);
+                System.out.println("Your score is : " + player.getScore());
+                System.exit(0);
+            }
+
+
+            int random = (int) (Math.random() * (choiceRandomMax - choiceRandomMin) + choiceRandomMin);
             switch (random) {
                 case 1:
                     SpaceStorm spaceStorm = new SpaceStorm();
@@ -54,59 +69,95 @@ public class Main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    if (choice == 2) {
+                    if (choice == 1) {
                         try {
                             spaceStorm.randomDmg();
                             System.out.println("Damage to space storm");
                             spaceShip.takeDamage(spaceStorm.getDamage());
                             System.out.println(spaceShip.getSpaceShipStatus());
+                            encounterCounter++;
                         } catch (CriticalDMGExeption e) {
                             System.out.println("WATCH OUT:" + e.getMessage());
                         }
                         if (spaceShip.getDurability() < 0) {
-                            running = false;
                         }
                     } else if (choice == 2) {
                         try {
                             spaceStorm.randomFuel();
                             spaceShip.fuelDrain(spaceStorm.getFueldepletion());
+                            encounterCounter++;
                         } catch (ArithmeticException | CriticalDMGExeption e) {
                             System.out.println(e.getMessage());
                         }
                         if (spaceShip.getFuelLevel() < 0) {
                             System.out.println("You don't have enough fuel");
                             System.out.println("GAME OVER");
-                            running = false;
                         }
                     }
                     waitingForInput = true;
                     break;
                 case 2:
                     int tradeCost;
-
+                    boolean tradeIsPossible = false;
                     AlienInvasion alienInvasion = new AlienInvasion();
                     System.out.println(alienInvasion.getDiscription());
                     System.out.println(spaceShip.getSpaceShipStatus());
 
-                    alienInvasion.getTradeOfferCost();
-                    if (spaceShip.getDurability() < alienInvasion.getScrapCost()) {
-                        System.out.println("You don't have enough durability to trade");
-                        // next scenario
-                    } else {
-                        System.out.println(alienInvasion.getTradeOffer());
-                        System.out.println("Are you willing trade that much?\n if you give them less they might get angry\n How much durability you would like to trade");
-                        tradeCost = Integer.parseInt(input.next());
-                        if (tradeCost <= alienInvasion.getScrapCost() * 0.9) {
-                            System.out.println("Your offer has angered the aliens...");
-                            break;
-                        } else {
-                            System.out.println("Success the aliens accepted your trade");
-                            spaceShip.setFuelLevel(spaceShip.getFuelLevel() + alienInvasion.getTradedFuel());
-                            spaceShip.setDurability(spaceShip.getDurability() - tradeCost);
+                    alienInvasion.getTradeOfferCost();// This generates random cost and fuel
+                    tradeIsPossible = alienInvasion.isPaymentPossible(spaceShip);// checks if there is enough durability to offer trade
+
+                    if (tradeIsPossible) {
+                        int tradeChoice = 0;
+                        waitingForInput = true;
+                        SpaceStorm alienStorm = new SpaceStorm();
+                        System.out.println(alienInvasion.getTradeOffer());// Displays the trade offer
+
+                        while (waitingForInput) {
+                            System.out.println("Do you want to trade?");
+                            System.out.println("1 for yes or 2 for no");
+                            try {
+                                tradeChoice = Integer.parseInt(input.next());
+
+                                if (tradeChoice == 1 || tradeChoice == 2) {
+                                    waitingForInput = false;
+                                } else {
+                                    System.out.println("You must enter '1' or '2' to select an option");
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Please enter a Valid Choice:");
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
                         }
+
+                        switch (tradeChoice) {
+                            case 1:
+                                try {
+                                    alienInvasion.playerWantsToTrade(input, spaceShip);
+                                    spaceShip.fuelDrain(alienStorm.randomFuel());
+                                    encounterCounter++;
+                                    // Next scenario
+                                } catch (ArithmeticException | InvalidTradeException | CriticalDMGExeption e) {
+                                    System.out.println(e.getMessage());
+                                }
+                                break;
+                            case 2:
+                                System.out.println("You fly off without trading ");
+                                try {
+                                    spaceShip.fuelDrain(alienStorm.randomFuel());
+                                    encounterCounter++;
+                                } catch (Exception e) {
+                                    System.out.println(e.getMessage());
+                                }
+                                break;
+                            default:
+                                System.out.println("Enter a valid choice");
+                        }
+                    } else {
+                        System.out.println("Since your ship is in critical condition");
+                        System.out.println("You fly off without trading");
+                        // Next scenario
                     }
-
-
                     break;
                 case 3:
                     EngineFailure engineFailure = new EngineFailure();
@@ -120,14 +171,14 @@ public class Main {
                         while (!success) {
                             if (engineFailure.engineFailureStatus()) {
                                 System.out.println("Success our engineers fixed the engine");
+                                encounterCounter++;
                                 success = true;
                             } else if (!engineFailure.engineFailureStatus()) {
                                 System.out.println(" Failed our engineers are trying to restart the engine");
+                                encounterCounter++;
                             }
                         }
                     }
-
-
                     break;
             }
         }

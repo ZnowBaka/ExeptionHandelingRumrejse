@@ -2,6 +2,8 @@ public class SpaceShip {
     private String shipName;
     private int fuelLevel;
     private int durability;
+    final int criticalFuelLevel = 20;
+    final int criticalDurabilityLevel = 20;
 
     public String getShipName() {
         return shipName;
@@ -46,7 +48,7 @@ public class SpaceShip {
         if (this.durability < 0) {
             return 0;
         } else if (this.durability <= 20) {
-            throw new CriticalDMGExeption("your ship is in critical condition");
+            throw new CriticalDMGExeption("\nyour ship is in critical condition");
         } else {
             return 1;
         }
@@ -62,6 +64,15 @@ public class SpaceShip {
         } else {
             return 1;
         }
+    }
+
+
+    public int getCriticalFuelLevel() {
+        return criticalFuelLevel;
+    }
+
+    public int getCriticalDurabilityLevel() {
+        return criticalDurabilityLevel;
     }
 }// SpaceShip End
 

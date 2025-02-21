@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class AlienInvasion {
     private int min = 1;
     private int max = 30;
@@ -21,12 +23,56 @@ public class AlienInvasion {
     }
 
     public void getTradeOfferCost() throws IllegalArgumentException {
-        scrapCost = randomDmg() / 4;
-        tradedFuel = randomDmg() / 2;
+        scrapCost = randomDmg() / 2;
+        tradedFuel = randomDmg();
     }
 
     public String getTradeOffer() {
         return tradeOffer = ("They offer " + tradedFuel + " fuel, if you let them scrape " + scrapCost + " durability of your ships hull");
+    }
+
+    public boolean isPaymentPossible(SpaceShip spaceShip) {
+        if (spaceShip.getDurability() < spaceShip.getCriticalDurabilityLevel()) {
+            System.out.println("Your ships hull is in critical condition");
+            System.out.println("You don't have enough durability to trade");
+            return false;
+        }
+        return true;
+    }
+
+    public void playerWantsToTrade(Scanner input, SpaceShip spaceShip) throws InvalidTradeException {
+        System.out.println("How much durability you would like to trade?");
+        boolean tradeAccepted = false;
+        int tradeCost = 0;
+
+        try {
+            tradeCost = Integer.parseInt(input.next());
+            tradeAccepted = isTradeAccepted(tradeCost);
+
+            if (!tradeAccepted) {
+                System.out.println("Your offer has angered the aliens...");
+                System.out.println("They shoot your shields once as a warning before leaving");
+
+            }
+            else {
+                System.out.println("Success the aliens accepted your trade");
+                    spaceShip.setFuelLevel(spaceShip.getFuelLevel() + this.getTradedFuel());
+                    spaceShip.takeDamage(tradeCost);
+            }
+
+        } catch (InvalidTradeException | CriticalDMGExeption e) {
+            throw new InvalidTradeException("Your offer was not accepted");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isTradeAccepted(int tradeCost) {
+        if (tradeCost <= this.getScrapCost() * 0.9 || tradeCost >= this.getScrapCost() * 1.5) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public int getScrapCost() {
